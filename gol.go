@@ -117,6 +117,17 @@ func (l *Life) SetTextSprite(s []string) {
 	l.textSprite = s
 }
 
+type Renderer func(x, y, hp int)
+
+// Render renders the current board using the rendering function.
+func (l *Life) Render(render Renderer) {
+	for y := 0; y < l.h; y++ {
+		for x := 0; x < l.w; x++ {
+			render(x, y, l.board.getHP(x, y))
+		}
+	}
+}
+
 // String renders the current board, using the sprites, if they've been defined.
 func (l *Life) String() string {
 	var lines []string
@@ -130,10 +141,29 @@ func (l *Life) String() string {
 	return strings.Join(lines, "\n")
 }
 
+// Randomize randomly sets some of the cells to MaxHP
 func (l *Life) Randomize() {
 	for y := 0; y < l.h; y++ {
 		for x := 0; x < l.w; x++ {
 			l.board.update(x, y, rand.Intn(2)*l.board.maxHP)
 		}
 	}
+}
+
+// Resize resizes the underlying board.
+func (l *Life) Resize(w, h int) {
+	b := newBoard(w, h, l.board.maxHP)
+	f := newBoard(w, h, l.board.maxHP)
+
+	for x := 0; x < l.w && x < w; x++ {
+		for y := 0; y < l.h && y < h; y++ {
+			b.update(x, y, l.board.getHP(x, y))
+			f.update(x, y, l.board.getHP(x, y))
+		}
+	}
+
+	l.board = b
+	l.buffer = f
+	l.w = w
+	l.h = h
 }
