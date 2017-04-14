@@ -9,6 +9,12 @@
 // Assumes a that the board wraps around at the edges.
 package golife
 
+import (
+	"math/rand"
+	"strconv"
+	"strings"
+)
+
 // Board keeps the state of a single board.
 type Board struct {
 	state [][]int
@@ -73,17 +79,26 @@ func (b *Board) update(x, y int, next int) {
 
 // Life keeps the state of the game. Maintains two boards, and swaps them at
 // every update.
+// If the sprites are set, will use them to render the board when rendering a
+// string. Otherwise, will use the numeric HP values.
 type Life struct {
 	board, buffer *Board
 	w, h          int
+	// Used for rendering with String()
+	textSprite []string
 }
 
 func NewLife(w, h, maxHP int) *Life {
+	s := make([]string, maxHP)
+	for i := 0; i < maxHP; i++ {
+		s[i] = strconv.Itoa(i)
+	}
 	return &Life{
-		board:  newBoard(w, h, maxHP),
-		buffer: newBoard(w, h, maxHP),
-		w:      w,
-		h:      h,
+		board:      newBoard(w, h, maxHP),
+		buffer:     newBoard(w, h, maxHP),
+		w:          w,
+		h:          h,
+		textSprite: s,
 	}
 }
 
@@ -95,4 +110,30 @@ func (l *Life) Step() {
 		}
 	}
 	l.buffer, l.board = l.board, l.buffer
+}
+
+// SetSprite sets the sprites to use when rendering the board.
+func (l *Life) SetTextSprite(s []string) {
+	l.textSprite = s
+}
+
+// String renders the current board, using the sprites, if they've been defined.
+func (l *Life) String() string {
+	var lines []string
+	for y := 0; y < l.h; y++ {
+		line := make([]string, l.w)
+		for x := 0; x < l.w; x++ {
+			line[x] = l.textSprite[l.board.getHP(x, y)]
+		}
+		lines = append(lines, strings.Join(line, ""))
+	}
+	return strings.Join(lines, "\n")
+}
+
+func (l *Life) Randomize() {
+	for y := 0; y < l.h; y++ {
+		for x := 0; x < l.w; x++ {
+			l.board.update(x, y, rand.Intn(2)*l.board.maxHP)
+		}
+	}
 }
