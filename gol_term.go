@@ -31,3 +31,21 @@ func TBRainbow(l *Life) {
 		termbox.SetCell(x, y, '█', colors[hp], 0)
 	})
 }
+
+// TBRenderHalf acts similar to TBRender, but uses half blocks. Doesn't use the standard render
+// function, since it needs to consider two blocks at a time. Assumes a maxHP of 1.
+func TBRenderHalf(l *Life) {
+	for y := 0; y < l.h; y += 2 {
+		for x := 0; x < l.w; x++ {
+			if l.board.getHP(x, y)+l.board.getHP(x, y+1) == 2 {
+				termbox.SetCell(x, y/2, '█', termbox.Attribute(0), 0)
+			} else if l.board.getHP(x, y) == 1 {
+				termbox.SetCell(x, y/2, '▀', termbox.Attribute(0), 0)
+			} else if l.board.getHP(x, y+1) == 1 {
+				termbox.SetCell(x, y/2, '▄', termbox.Attribute(0), 0)
+			} else {
+				termbox.SetCell(x, y/2, ' ', termbox.Attribute(1), 0)
+			}
+		}
+	}
+}

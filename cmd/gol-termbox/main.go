@@ -9,11 +9,13 @@ import (
 )
 
 var (
-	update int
+	update   int
+	halfGrid bool
 )
 
 func init() {
 	flag.IntVar(&update, "update", 100, "update interval in ms")
+	flag.BoolVar(&halfGrid, "half", false, "use half grid on-off only")
 	flag.Parse()
 }
 
@@ -38,7 +40,12 @@ func main() {
 	}()
 
 	w, h := termbox.Size()
-	l := golife.NewLife(w, h, 7)
+	var l *golife.Life
+	if halfGrid {
+		l = golife.NewLife(w, h*2, 1)
+	} else {
+		l = golife.NewLife(w, h, 7)
+	}
 	l.Randomize()
 
 	tick := time.Tick(time.Duration(update) * time.Millisecond)
@@ -46,7 +53,11 @@ func main() {
 		select {
 		case <-tick:
 			l.Step()
-			golife.TBRainbow(l)
+			if halfGrid {
+				golife.TBRenderHalf(l)
+			} else {
+				golife.TBRainbow(l)
+			}
 			termbox.Flush()
 		case ev := <-event:
 			switch ev.Type {
