@@ -69,7 +69,11 @@ func main() {
 					return
 				}
 			case termbox.EventResize:
-				l.Resize(ev.Width, ev.Height)
+				if halfGrid {
+					l.Resize(ev.Width, ev.Height*2)
+				} else {
+					l.Resize(ev.Width, ev.Height)
+				}
 			}
 		}
 	}
