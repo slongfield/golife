@@ -7,3 +7,5 @@ leaves behind a record, which decays over the course of the next few iterations.
 This comes with two rendering engines, one which emits a simple ASCII rendering,
 (cmd/gol-text), and another which uses termbox to emit a colorful rendering at
 the full size of the terminal.
+
+Requires Go 1.6+ for testing.Run
